@@ -1,0 +1,30 @@
+# Roda a suíte de testes em cada pull request e em cada push no main.
+# O teste lento com o Docling real (ARTIGO2MD_SLOW) fica de fora: ele baixa os modelos.
+name: tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    name: pytest (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: astral-sh/setup-uv@v10.4.0
+        with:
+          python-version: "3.12"
+      - name: Instala as dependências
+        run: uv sync --locked --extra dev --extra pymupdf
+      - name: Roda os testes
+        run: uv run pytest

@@ -32,7 +32,7 @@ Medição num artigo da JAMA Psychiatry (10 páginas, 2 colunas) num Mac mini M-
 ## Instalação
 
 Requer [uv](https://docs.astral.sh/uv/) e ~3 GB livres (modelos do Docling, baixados na
-primeira conversão). Testado em macOS com Apple Silicon e Linux.
+primeira conversão; depois disso o Docling não consulta mais o Hugging Face). Testado em macOS com Apple Silicon e Linux.
 
 ```bash
 git clone https://github.com/drvalber/artigo2md.git
@@ -75,7 +75,7 @@ Docling para liberar a placa.
 
 ```bash
 uv run artigo2md convert artigo.pdf                     # → ./markdown/artigo.md
-uv run artigo2md convert ~/Artigos -o ~/Artigos-md      # pasta inteira, recursivo
+uv run artigo2md convert ~/Artigos -o ~/Artigos-md      # pasta inteira, recursivo; a saída repete as subpastas
 uv run artigo2md convert livro.pdf -e docling --report  # força o motor e grava relatório
 ```
 

@@ -9,18 +9,38 @@ from pathlib import Path
 
 from . import __version__
 
+# Endereços em que a interface só atende a própria máquina.
+LOCAL_HOSTS = ("127.0.0.1", "localhost", "::1")
 
-def _collect_pdfs(inputs: list[str]) -> list[Path]:
-    pdfs: list[Path] = []
+
+def _collect_pdfs(inputs: list[str]) -> list[tuple[Path, Path]]:
+    """Devolve pares (PDF, caminho do Markdown relativo à pasta de saída).
+
+    PDFs achados dentro de uma pasta de entrada mantêm as subpastas dela, para que
+    arquivos de mesmo nome em pastas diferentes não disputem a mesma saída; um PDF
+    passado diretamente vai para a raiz da pasta de saída.
+    """
+    pdfs: list[tuple[Path, Path]] = []
     for item in inputs:
         p = Path(item).expanduser()
         if p.is_dir():
-            pdfs.extend(sorted(x for x in p.rglob("*") if x.suffix.lower() == ".pdf"))
+            found = sorted(x for x in p.rglob("*") if x.suffix.lower() == ".pdf")
+            pdfs.extend((x, x.relative_to(p).with_suffix(".md")) for x in found)
         elif p.suffix.lower() == ".pdf" and p.exists():
-            pdfs.append(p)
+            pdfs.append((p, Path(p.stem + ".md")))
         else:
             print(f"ignorado (não é PDF ou não existe): {p}", file=sys.stderr)
     return pdfs
+
+
+def _find_collisions(pdfs: list[tuple[Path, Path]]) -> dict[Path, list[Path]]:
+    """Saídas pedidas por mais de um PDF diferente: {caminho de saída: [PDFs de origem]}."""
+    by_target: dict[Path, list[Path]] = {}
+    for pdf, relative in pdfs:
+        sources = by_target.setdefault(relative, [])
+        if pdf.resolve() not in (s.resolve() for s in sources):
+            sources.append(pdf)
+    return {target: sources for target, sources in by_target.items() if len(sources) > 1}
 
 
 def cmd_convert(args: argparse.Namespace) -> int:
@@ -30,21 +50,32 @@ def cmd_convert(args: argparse.Namespace) -> int:
     if not pdfs:
         print("Nenhum PDF encontrado.", file=sys.stderr)
         return 1
+    collisions = _find_collisions(pdfs)
+    if collisions:
+        print("Entradas diferentes gerariam o mesmo arquivo de saída; nada foi convertido:",
+              file=sys.stderr)
+        for target, sources in collisions.items():
+            print(f"  {target} ← {', '.join(str(s) for s in sources)}", file=sys.stderr)
+        print("Passe a pasta que contém esses arquivos (a saída repete as subpastas dela) "
+              "ou converta-os em execuções separadas, com pastas de saída diferentes.",
+              file=sys.stderr)
+        return 1
     out_dir = Path(args.output).expanduser()
     out_dir.mkdir(parents=True, exist_ok=True)
     failures = 0
-    for i, pdf in enumerate(pdfs, 1):
-        target = out_dir / (pdf.stem + ".md")
+    for i, (pdf, relative) in enumerate(pdfs, 1):
+        target = out_dir / relative
         if target.exists() and not args.overwrite:
-            print(f"[{i}/{len(pdfs)}] já existe, pulando: {target.name}")
+            print(f"[{i}/{len(pdfs)}] já existe, pulando: {relative}")
             continue
-        print(f"[{i}/{len(pdfs)}] {pdf.name}")
+        print(f"[{i}/{len(pdfs)}] {relative.with_suffix(pdf.suffix)}")
         try:
             result = convert(pdf, engine=args.engine, progress=lambda m: print(f"    {m}"))
         except Exception as exc:
             failures += 1
             print(f"    ERRO: {exc}", file=sys.stderr)
             continue
+        target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(result.markdown, encoding="utf-8")
         if args.report:
             target.with_suffix(".report.json").write_text(
@@ -74,6 +105,9 @@ def cmd_serve(args: argparse.Namespace) -> int:
     app = create_app(Path(args.data_dir).expanduser(), idle_timeout=args.idle_timeout)
     url = f"http://{'localhost' if args.host in ('127.0.0.1', '0.0.0.0') else args.host}:{args.port}"
     print(f"artigo2md {__version__} — interface em {url}")
+    if args.host not in LOCAL_HOSTS:
+        print(f"Atenção: a interface não tem senha e fica acessível a outras máquinas da rede "
+              f"em {args.host}:{args.port}. Não a exponha à internet aberta.", file=sys.stderr)
     if args.open:
         import threading
         import webbrowser

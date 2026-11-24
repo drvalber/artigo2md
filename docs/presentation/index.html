@@ -1,0 +1,1724 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="cstk presentation">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:">
+<meta name="color-scheme" content="dark light">
+<title>artigo2md</title>
+<style>
+/* cstk presentation: design system do deck (template fixo da skill).
+   Autocontido: sem fontes remotas, sem imagens externas (Constitution IV).
+   Modos: relatorio (padrao, sem JS), slides (html.is-slides), impressao. */
+
+:root {
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Charter, "Bitstream Charter", "Source Serif Pro", Georgia, serif;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --bg: #f4f1ea;
+  --stage-bg: #e9e5db;
+  --bg-elev: #fffdf8;
+  --surface: #f8f5ee;
+  --ink: #16171b;
+  --ink-2: #3a3d45;
+  --muted: #676a72;
+  --line: #e0dacd;
+  --accent: #8a5d00;
+  --accent-strong: #b27a00;
+  --accent-soft: rgba(178, 122, 0, 0.1);
+  --glow: rgba(214, 160, 40, 0.22);
+  --glow-2: rgba(29, 122, 116, 0.1);
+  --ok: #2c7a4b;
+  --warn: #8a5d00;
+  --info: #3f5a93;
+  --idle: #676a72;
+  --live: #17726c;
+  --scale: 1;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c0d10;
+    --stage-bg: #060708;
+    --bg-elev: #131519;
+    --surface: #1a1d22;
+    --ink: #f2eee5;
+    --ink-2: #c8c4ba;
+    --muted: #8e919a;
+    --line: #272a31;
+    --accent: #e8b341;
+    --accent-strong: #f3c75e;
+    --accent-soft: rgba(232, 179, 65, 0.11);
+    --glow: rgba(232, 179, 65, 0.16);
+    --glow-2: rgba(111, 211, 201, 0.07);
+    --ok: #7fd19b;
+    --warn: #e8b341;
+    --info: #a3b6ea;
+    --idle: #9a9ca3;
+    --live: #6fd3c9;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0c0d10;
+  --stage-bg: #060708;
+  --bg-elev: #131519;
+  --surface: #1a1d22;
+  --ink: #f2eee5;
+  --ink-2: #c8c4ba;
+  --muted: #8e919a;
+  --line: #272a31;
+  --accent: #e8b341;
+  --accent-strong: #f3c75e;
+  --accent-soft: rgba(232, 179, 65, 0.11);
+  --glow: rgba(232, 179, 65, 0.16);
+  --glow-2: rgba(111, 211, 201, 0.07);
+  --ok: #7fd19b;
+  --warn: #e8b341;
+  --info: #a3b6ea;
+  --idle: #9a9ca3;
+  --live: #6fd3c9;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: var(--accent-soft); color: var(--ink); }
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: 0.08em 0.36em;
+  overflow-wrap: anywhere;
+}
+
+strong { font-weight: 650; color: var(--ink); }
+em { font-style: italic; }
+
+/* ------------------------------------------------------------------ */
+/* Escala tipografica (relatorio: fluida)                              */
+/* ------------------------------------------------------------------ */
+
+.slide {
+  --fs-hero: clamp(2.6rem, 8vw, 5.4rem);
+  --fs-title: clamp(1.75rem, 4.4vw, 3.1rem);
+  --fs-lead: clamp(1.08rem, 2.1vw, 1.42rem);
+  --fs-body: 1rem;
+  --fs-card-title: 1.04rem;
+  --fs-eyebrow: 0.74rem;
+  --fs-metric: clamp(2.2rem, 6vw, 3.6rem);
+  --fs-numeral: clamp(7rem, 26vw, 15rem);
+  --fs-small: 0.8rem;
+  --gap: clamp(16px, 2.6vw, 28px);
+  --pad-y: clamp(28px, 5vw, 64px);
+  --pad-x: clamp(20px, 5vw, 72px);
+}
+
+/* ------------------------------------------------------------------ */
+/* Deck em modo relatorio (padrao)                                     */
+/* ------------------------------------------------------------------ */
+
+.deck {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 40px 16px 120px;
+}
+
+.slide {
+  position: relative;
+  margin: 0 0 28px;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: var(--pad-y) var(--pad-x);
+  overflow: hidden;
+  scroll-margin-top: 24px;
+}
+
+.slide__frame {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  height: 100%;
+}
+
+.slide__header { position: relative; }
+
+.slide__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  min-height: 0;
+}
+
+.eyebrow {
+  margin: 0 0 0.9em;
+  font-family: var(--font-mono);
+  font-size: var(--fs-eyebrow);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.eyebrow .nocase { text-transform: none; letter-spacing: 0.06em; }
+
+.eyebrow code {
+  background: none;
+  padding: 0;
+  font-size: 1em;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--muted);
+}
+
+.slide__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-title);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  max-width: 26ch;
+}
+
+.slide__title--hero {
+  font-size: var(--fs-hero);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  max-width: 16ch;
+}
+
+.slide__subtitle {
+  margin: 0.6em 0 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: calc(var(--fs-lead) * 1.3);
+  line-height: 1.25;
+  color: var(--ink-2);
+  max-width: 32ch;
+}
+
+.lead p {
+  margin: 0 0 0.6em;
+  font-size: var(--fs-lead);
+  line-height: 1.45;
+  color: var(--ink-2);
+  max-width: 62ch;
+  text-wrap: pretty;
+}
+
+.lead p:last-child { margin-bottom: 0; }
+
+.lead ul, .card__body ul {
+  margin: 0.4em 0;
+  padding-left: 1.1em;
+}
+
+.lead li { font-size: var(--fs-lead); color: var(--ink-2); margin: 0.25em 0; }
+
+.pull, .tagline {
+  margin: 0;
+  padding: 0.1em 0 0.1em 1em;
+  border-left: 3px solid var(--accent);
+}
+
+.pull p, .tagline p {
+  margin: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: calc(var(--fs-lead) * 1.1);
+  line-height: 1.35;
+  color: var(--ink);
+  max-width: 48ch;
+}
+
+.tagline p { font-size: calc(var(--fs-lead) * 1.25); }
+
+/* ---- cartoes ---- */
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: calc(var(--gap) * 0.75);
+}
+
+.card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 20px 22px;
+}
+
+.card__index {
+  display: block;
+  margin-bottom: 0.5em;
+  font-family: var(--font-mono);
+  font-size: var(--fs-eyebrow);
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+
+.card__title {
+  margin: 0 0 0.45em;
+  font-family: var(--font-sans);
+  font-size: var(--fs-card-title);
+  font-weight: 650;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+
+.card__body p, .card__body li {
+  margin: 0.35em 0;
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+
+.card__body > :first-child { margin-top: 0; }
+.card__body > :last-child { margin-bottom: 0; }
+
+.card--strong {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, var(--accent-soft), transparent 70%), var(--surface);
+}
+
+.card__flag {
+  display: inline-block;
+  margin-bottom: 0.6em;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* ---- metricas ---- */
+
+.metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.metric {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.55em;
+  padding: 7px 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.metric__value {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.metric__of { color: var(--muted); font-weight: 400; }
+
+.metric__label { font-size: var(--fs-small); color: var(--muted); }
+
+.na {
+  font-family: var(--font-sans);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 0.85em;
+  color: var(--muted);
+}
+
+/* ---- rodape de fontes ---- */
+
+.slide__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 14px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.slide__footer-label {
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.slide__footer .src {
+  font-family: var(--font-sans);
+  letter-spacing: 0;
+  color: var(--muted);
+  cursor: help;
+}
+
+.slide__footer .src__sep { color: var(--line); }
+
+/* ---- selos ilustrativos (@tag): tecnologia so como ilustracao ---- */
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.tags__label {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.tag {
+  padding: 3px 10px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+  border: 1px dashed var(--line);
+  border-radius: 999px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Tipos de slide                                                      */
+/* ------------------------------------------------------------------ */
+
+/* capa */
+.slide--cover {
+  background:
+    radial-gradient(70% 90% at 92% 0%, var(--glow), transparent 62%),
+    radial-gradient(60% 70% at 0% 100%, var(--glow-2), transparent 60%),
+    var(--bg-elev);
+}
+
+.slide--cover .slide__frame { justify-content: flex-end; min-height: min(70vh, 560px); }
+
+.slide--cover .slide__header::before {
+  content: "";
+  display: block;
+  width: 72px;
+  height: 3px;
+  margin-bottom: 28px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+/* manifesto e horizonte */
+.slide--manifesto .slide__frame,
+.slide--closing .slide__frame { justify-content: center; min-height: min(60vh, 460px); }
+
+.slide--manifesto .slide__title,
+.slide--closing .slide__title {
+  font-size: calc(var(--fs-title) * 1.22);
+  max-width: 20ch;
+}
+
+.slide--closing {
+  background:
+    radial-gradient(80% 90% at 50% 120%, var(--glow), transparent 65%),
+    var(--bg-elev);
+}
+
+/* capitulo */
+.slide--chapter {
+  background:
+    linear-gradient(135deg, var(--accent-soft), transparent 55%),
+    var(--bg-elev);
+}
+
+.slide--chapter .slide__frame { justify-content: flex-end; min-height: min(52vh, 400px); }
+
+.slide--chapter .slide__title { font-size: calc(var(--fs-title) * 1.3); max-width: 18ch; }
+
+.chapter__numeral {
+  position: absolute;
+  right: -0.04em;
+  bottom: -0.2em;
+  z-index: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-numeral);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--accent);
+  opacity: 0.45;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* spec */
+.slide--spec { --stage: var(--idle); }
+.stage-implemented { --stage: var(--ok); }
+.stage-in-progress { --stage: var(--warn); }
+.stage-specified { --stage: var(--info); }
+.stage-archived { --stage: var(--idle); }
+.stage-living { --stage: var(--live); }
+
+.slide--spec::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--stage), transparent 70%);
+}
+
+.slide--spec .slide__header { padding-right: 11em; }
+
+.badge {
+  position: absolute;
+  top: -0.2em;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  padding: 5px 12px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--stage);
+  border: 1px solid var(--stage);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.badge::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--stage);
+}
+
+.slide--spec .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/* principios */
+.slide--constitution .cards { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+
+/* valor entregue (versao resumida e deck completo) */
+.slide--highlights::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), transparent 70%);
+}
+
+/* numeros */
+.slide--numbers .metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: calc(var(--gap) * 0.75);
+}
+
+.slide--numbers .metric {
+  min-width: 0;
+  overflow: hidden;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 0.3em;
+  padding: 24px 26px;
+  border-radius: 18px;
+}
+
+/* valor longo (ex.: 2264/2268) nunca vaza do card: largura limitada e
+   fonte reduzida por deck.js (fitMetricValues) so quando nao couber */
+.slide--numbers .metric__value {
+  display: block;
+  max-width: 100%;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-size: var(--fs-metric);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+}
+
+.slide--numbers .metric__label { font-size: var(--fs-body); color: var(--ink-2); }
+
+/* linha do tempo */
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  columns: 2 280px;
+  column-gap: 44px;
+}
+
+.timeline__group {
+  position: relative;
+  break-inside: avoid;
+  margin: 0 0 18px;
+  padding: 0 0 0 20px;
+  border-left: 2px solid var(--line);
+}
+
+.timeline__group::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 0.35em;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+.timeline__date {
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-eyebrow);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.timeline__specs { list-style: none; margin: 0; padding: 0; }
+
+.timeline__specs li {
+  position: relative;
+  margin: 0.18em 0;
+  padding-left: 14px;
+  font-size: calc(var(--fs-body) * 0.92);
+  line-height: 1.35;
+  color: var(--ink-2);
+}
+
+.timeline__specs li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 6px;
+  height: 2px;
+  background: var(--stage, var(--muted));
+}
+
+/* indice de fontes */
+.source-index { columns: 2 320px; column-gap: 40px; }
+
+.source-index section { margin-bottom: 18px; }
+
+.source-index h3 {
+  break-after: avoid;
+  margin: 0 0 8px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-eyebrow);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.source-index ul { list-style: none; margin: 0; padding: 0; }
+
+.source-index li {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 7px;
+  break-inside: avoid;
+}
+
+.source-index code { background: none; padding: 0; font-size: 0.72rem; color: var(--ink-2); }
+.source-index span { font-size: 0.74rem; color: var(--muted); }
+
+/* ------------------------------------------------------------------ */
+/* Cromo: progresso, sumario, HUD, colofao                             */
+/* ------------------------------------------------------------------ */
+
+.progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 20;
+  height: 3px;
+  pointer-events: none;
+}
+
+.progress__bar {
+  display: block;
+  height: 100%;
+  width: var(--progress, 0%);
+  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+  transition: width 0.35s ease;
+}
+
+.toc { display: none; }
+
+.hud { display: none; }
+
+.js .hud {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 6px 5px 14px;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+  opacity: 0.55;
+  transition: opacity 0.25s ease;
+}
+
+.js .hud:hover, .js .hud:focus-within { opacity: 1; }
+
+.hud__counter { margin-right: 6px; font-variant-numeric: tabular-nums; }
+
+.hud__btn {
+  min-width: 32px;
+  height: 30px;
+  padding: 0 10px;
+  font: inherit;
+  color: var(--ink-2);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.hud__btn:hover { background: var(--accent-soft); color: var(--ink); }
+
+.hud__btn:focus-visible, .toc a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.hud__help { display: none; margin-left: 8px; padding-right: 8px; }
+
+.is-report .hud [data-action="prev"],
+.is-report .hud [data-action="next"],
+.is-report .hud__counter { display: none; }
+
+.colophon {
+  padding: 8px 16px 96px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+@media (min-width: 1280px) {
+  .is-report .toc {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 5;
+    display: block;
+    width: 280px;
+    overflow-y: auto;
+    padding: 40px 18px 40px 24px;
+    border-right: 1px solid var(--line);
+    background: var(--bg);
+  }
+
+  .is-report .deck,
+  .is-report .colophon { margin-left: max(300px, calc((100vw - 1120px) / 2)); }
+
+  .is-slides .hud:hover .hud__help,
+  .is-slides .hud:focus-within .hud__help { display: inline; }
+}
+
+.toc__title {
+  margin: 0 0 14px 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.toc__list { list-style: none; margin: 0; padding: 0; }
+
+.toc__list a {
+  display: block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.toc__list a:hover { color: var(--ink); background: var(--accent-soft); }
+
+.toc__list .is-major a { margin-top: 10px; color: var(--ink); font-weight: 600; }
+
+.toc__list .is-spec a { padding-left: 20px; }
+
+.toc__list .is-active a { color: var(--accent); background: var(--accent-soft); }
+
+/* ------------------------------------------------------------------ */
+/* Modo slides: canvas 1600x900 escalado                               */
+/* ------------------------------------------------------------------ */
+
+.is-slides, .is-slides body { height: 100%; overflow: hidden; }
+
+.is-slides body { background: var(--stage-bg); }
+
+.is-slides .deck {
+  position: fixed;
+  inset: 0;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.is-slides .colophon { display: none; }
+
+.is-slides .slide {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1600px;
+  height: 900px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  transform: translate(-50%, -50%) scale(var(--scale));
+  transform-origin: center center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.45s ease, visibility 0s linear 0.45s;
+}
+
+.is-slides .slide.is-current {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.45s ease, visibility 0s linear 0s;
+}
+
+/* --fit (0..1) e calculado por slide no deck.js para caber no canvas */
+.is-slides .slide {
+  --fit: 1;
+  --fs-hero: 128px;
+  --fs-title: calc(62px * (0.6 + 0.4 * var(--fit)));
+  --fs-lead: calc(26px * var(--fit));
+  --fs-body: calc(19px * var(--fit));
+  --fs-card-title: calc(21px * var(--fit));
+  --fs-eyebrow: 14px;
+  --fs-metric: 82px;
+  --fs-numeral: 400px;
+  --fs-small: calc(15px * var(--fit));
+  --gap: calc(30px * var(--fit));
+  --pad-y: 72px;
+  --pad-x: 112px;
+}
+
+.is-slides .slide__body { flex: 1; overflow-y: auto; scrollbar-width: thin; }
+
+.is-slides .slide--cover .slide__frame,
+.is-slides .slide--manifesto .slide__frame,
+.is-slides .slide--closing .slide__frame,
+.is-slides .slide--chapter .slide__frame { min-height: 0; }
+
+.is-slides .slide--cover .slide__body,
+.is-slides .slide--manifesto .slide__body,
+.is-slides .slide--closing .slide__body,
+.is-slides .slide--chapter .slide__body { flex: 0 0 auto; }
+
+.is-slides .metric__value { font-size: 18px; }
+.is-slides .slide--numbers .metric__value { font-size: var(--fs-metric); }
+.is-slides .metric { padding: 9px 18px; }
+.is-slides .slide__footer { font-size: 13px; }
+.is-slides .tags__label { font-size: 12px; }
+.is-slides .tag { font-size: 13px; padding: 4px 12px; }
+.is-slides .card { padding: 24px 28px; border-radius: 18px; }
+.is-slides .card__flag { font-size: 12px; }
+.is-slides .badge { font-size: 13px; padding: 7px 16px; }
+.is-slides .slide--spec .slide__title { font-size: calc(var(--fs-title) * 0.88); }
+.is-slides .slide--spec .cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.is-slides .slide--constitution .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.is-slides .slide--highlights .cards--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.is-slides .slide--highlights .cards--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.is-slides .card { padding: calc(24px * var(--fit)) calc(26px * var(--fit)); }
+.is-slides .timeline { columns: 4; column-gap: 36px; }
+.is-slides .timeline__specs li { font-size: calc(15px * var(--fit)); }
+.is-slides .source-index { columns: 3; }
+.is-slides .source-index li { margin-bottom: 4px; }
+.is-slides .source-index code { font-size: calc(12px * var(--fit)); }
+.is-slides .source-index span { display: none; }
+
+/* ------------------------------------------------------------------ */
+/* Responsivo (relatorio em telas estreitas)                           */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 720px) {
+  .deck { padding: 20px 12px 100px; }
+  .slide { border-radius: 16px; margin-bottom: 18px; }
+  .slide--spec .cards { grid-template-columns: 1fr; }
+  .slide--spec .slide__header { padding-right: 0; padding-top: 2.4em; }
+  .badge { top: 0; left: 0; right: auto; }
+  .slide--cover .slide__frame { min-height: min(56vh, 420px); }
+  .slide--manifesto .slide__frame,
+  .slide--closing .slide__frame,
+  .slide--chapter .slide__frame { min-height: 0; }
+  .chapter__numeral { font-size: 7rem; opacity: 0.3; }
+  .js .hud { right: 8px; left: 8px; bottom: 8px; justify-content: center; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Impressao / PDF: um slide por pagina                                */
+/* ------------------------------------------------------------------ */
+
+@page { size: 1600px 900px; margin: 0; }
+
+@media print {
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html, body, .is-slides, .is-slides body { height: auto !important; overflow: visible !important; background: var(--bg); }
+  .progress, .toc, .hud, .colophon { display: none !important; }
+  .deck, .is-slides .deck { position: static; max-width: none; margin: 0 !important; padding: 0; }
+  .slide, .is-slides .slide {
+    --fs-hero: 128px;
+    --fs-title: calc(62px * (0.6 + 0.4 * var(--fit, 1)));
+    --fs-lead: calc(26px * var(--fit, 1));
+    --fs-body: calc(19px * var(--fit, 1));
+    --fs-card-title: calc(21px * var(--fit, 1));
+    --fs-eyebrow: 14px;
+    --fs-metric: 82px;
+    --fs-numeral: 400px;
+    --fs-small: calc(15px * var(--fit, 1));
+    --gap: calc(30px * var(--fit, 1));
+    --pad-y: 72px;
+    --pad-x: 112px;
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 1600px;
+    height: 900px;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    break-after: page;
+    page-break-after: always;
+  }
+  .slide__body { flex: 1; overflow: hidden; }
+  .slide--cover .slide__frame,
+  .slide--manifesto .slide__frame,
+  .slide--closing .slide__frame,
+  .slide--chapter .slide__frame { min-height: 0; }
+  .slide--spec .cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .slide--constitution .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .slide--highlights .cards--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .slide--highlights .cards--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .timeline { columns: 4; }
+  .source-index { columns: 3; }
+  .source-index span { display: none; }
+  .slide__footer { font-size: 13px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"><span class="progress__bar"></span></div>
+<nav class="toc" id="toc" aria-label="Sum&aacute;rio">
+<p class="toc__title">Sum&aacute;rio</p>
+<ol class="toc__list"></ol>
+</nav>
+<main class="deck" id="deck" aria-label="artigo2md">
+<section class="slide slide--cover" id="slide-1" data-index="1" data-type="cover" data-title="artigo2md">
+<div class="slide__frame">
+<header class="slide__header">
+<p class="eyebrow">artigo2md</p>
+<h1 class="slide__title slide__title--hero">artigo2md</h1>
+<p class="slide__subtitle">Seus PDFs viram texto limpo, sem sair do seu computador</p>
+</header>
+<div class="slide__body">
+<div class="lead">
+<p>Artigos científicos, livros e diretrizes convertidos em texto estruturado, na máquina de quem usa e sem custo por página.</p>
+</div>
+<blockquote class="tagline"><p>Nada é enviado para a internet.</p></blockquote>
+</div>
+<footer class="slide__footer"><span class="slide__footer-label">Fonte</span><span class="src" title="docs/briefing.md">Briefing</span></footer>
+</div>
+</section>
+<section class="slide slide--manifesto" id="slide-2" data-index="2" data-type="manifesto" data-title="Por que este projeto existe">
+<div class="slide__frame">
+<header class="slide__header">
+<p class="eyebrow">Manifesto</p>
+<h2 class="slide__title">Por que este projeto existe</h2>
+</header>
+<div class="slide__body">
+<div class="lead">
+<p>Quem converte artigos científicos conhece o problema: a conversão termina, mas a tabela que o texto cita não está lá. Um único conversor não acerta todo tipo de documento.</p>
+<p>O artigo2md parte de uma convicção simples: cada PDF merece ser <strong>examinado antes, encaminhado ao conversor mais adequado e conferido depois</strong>. Se o resultado ficou ruim, o próximo conversor é tentado e o melhor resultado é o que fica.</p>
+<blockquote class="pull"><p>Nada é enviado para a internet e não há custo por página.</p></blockquote>
+</div>
+</div>
+<footer class="slide__footer"><span class="slide__footer-label">Fonte</span><span class="src" title="docs/briefing.md">Briefing</span></footer>
+</div>
+</section>
+<section class="slide slide--briefing" id="slide-3" data-index="3" data-type="briefing" data-title="O ponto de partida">
+<div class="slide__frame">
+<header class="slide__header">
+<p class="eyebrow">Briefing</p>
+<h2 class="slide__title">O ponto de partida</h2>
+</header>
+<div class="slide__body">
+<div class="cards cards--5">
+<article class="card">
+<h3 class="card__title">Visão</h3>
+<div class="card__body">
+<p>Um conversor de PDFs (artigos científicos, livros, diretrizes e capítulos) para Markdown, um formato de texto simples e estruturado, que roda no computador de quem usa.</p>
+</div>
+</article>
+<article class="card">
+<h3 class="card__title">Usuários</h3>
+<div class="card__body">
+<p>Pesquisadores e estudantes, profissionais de saúde e desenvolvedores: gente que precisa ler, anotar, consultar ou preparar muitos documentos.</p>
+</div>
+</article>
+<article class="card">
+<h3 class="card__title">Escopo</h3>
+<div class="card__body">
+<ul>
+<li>Exame do documento antes da conversão</li>
+<li>Escolha automática do conversor, com nota de qualidade e nova tentativa</li>
+<li>Uso pelo navegador ou por comandos, sempre na própria máquina</li>
+</ul>
+</div>
+</article>
+<article class="card">
+<h3 class="card__title">Restrições</h3>
+<div class="card__body">
+<p>Processamento sempre local, componentes obrigatórios de licença aberta e permissiva, projeto comunitário sem prazo fixo e sem orçamento.</p>
+</div>
+</article>
+<article class="card">
+<h3 class="card__title">Prioridades</h3>
+<div class="card__body">
+<p>Qualidade e robustez em primeiro lugar.</p>
+</div>
+</article>
+</div>
+</div>
+<footer class="slide__footer"><span class="slide__footer-label">Fonte</span><span class="src" title="docs/briefing.md">Briefing</span></footer>
+</div>
+</section>
+<section class="slide slide--constitution" id="slide-4" data-index="4" data-type="constitution" data-title="No que acreditamos">
+<div class="slide__frame">
+<header class="slide__header">
+<p class="eyebrow">Constitui&ccedil;&atilde;o &middot; <span class="nocase">v1.0.1</span></p>
+<h2 class="slide__title">No que acreditamos</h2>
+</header>
+<div class="slide__body">
+<div class="cards cards--5">
+<article class="card">
+<h3 class="card__title">I. Processamento 100% Local</h3>
+<div class="card__body">
+<p>Nenhum documento de quem usa é enviado a serviços externos.</p>
+</div>
+</article>
+<article class="card">
+<h3 class="card__title">II. Dependências Obrigatórias com Licença Permissiva</h3>
+<div class="card__body">
+<p>O projeto segue livre para qualquer uso: nada obrigatório carrega licença restritiva.</p>
+</div>
+</article>
+<article class="card">
+<h3 class="card__title">III. Mensagens ao Usuário em Português</h3>
+<div class="card__body">
+<p>Quem usa é atendido na própria língua.</p>
+</div>
+</article>
+<article class="card">
+<h3 class="card__title">IV. Testes Antes do Commit</h3>
+<div class="card__body">
+<p>O commit é o registro oficial de uma mudança no projeto: nenhuma é registrada sem que a verificação automática passe.</p>
+</div>
+</article>
+<article class="card card--strong">
+<span class="card__flag">Inegoci&aacute;vel</span>
+<h3 class="card__title">V. Veracidade de Dados, Zero Fabricação</h3>
+<div class="card__body">
+<p>Nenhum documento do projeto contém dado inventado. Sem fonte rastreável, o trabalho para e uma pessoa decide.</p>
+</div>
+</article>
+</div>
+<div class="metrics metrics--2">
+<div class="metric"><span class="metric__value">5</span><span class="metric__label">Princípios</span></div>
+<div class="metric"><span class="metric__value">1.0.1</span><span class="metric__label">Versão</span></div>
+</div>
+</div>
+<footer class="slide__footer"><span class="slide__footer-label">Fonte</span><span class="src" title="docs/constitution.md">Constitui&ccedil;&atilde;o</span></footer>
+</div>
+</section>
+<section class="slide slide--chapter" id="slide-5" data-index="5" data-type="chapter" data-title="Do retrato à entrega">
+<div class="slide__frame">
+<span class="chapter__numeral" aria-hidden="true">01</span>
+<header class="slide__header">
+<p class="eyebrow">Cap&iacute;tulo 01</p>
+<h2 class="slide__title">Do retrato à entrega</h2>
+</header>
+<div class="slide__body">
+<div class="lead">
+<p>O produto já existia e funcionava. Cada peça foi documentada a partir do que ele realmente faz, passou por perguntas e decisões e, onde havia lacuna, ganhou um plano. Esses planos foram executados e conferidos contra o combinado, inclusive um item de privacidade que a própria conferência revelou.</p>
+</div>
+</div>
+</div>
+</section>
+<section class="slide slide--spec stage-implemented" id="slide-6" data-index="6" data-type="spec" data-title="Converter pastas inteiras com um comando" data-key="command-line-interface" data-stage="implemented">
+<div class="slide__frame">
+<header class="slide__header">
+<p class="eyebrow">Do retrato à entrega</p>
+<span class="badge badge--implemented">Implementada</span>
+<h2 class="slide__title">Converter pastas inteiras com um comando</h2>
+</header>
+<div class="slide__body">
+<div class="lead">
+<p>Quem tem muitos documentos não precisa abrir um por um: aponta a pasta e recebe tudo convertido.</p>
+</div>
+<div class="cards cards--4">
+<article class="card">
+<span class="card__index">01</span>
+<h3 class="card__title">O que é</h3>
+<div class="card__body">
+<p>Um comando único para converter arquivos ou pastas inteiras, abrir a página de uso no navegador e conferir se a instalação está saudável. Documentos já convertidos são pulados, o que permite repetir a operação sem retrabalho.</p>
+</div>
+</article>
+<article class="card">
+<span class="card__index">02</span>
+<h3 class="card__title">Como foi pensada</h3>
+<div class="card__body">
+<p>O ponto frágil estava nos documentos de mesmo nome guardados em pastas diferentes: um deles ficava de fora. A escolha foi fazer a saída repetir a organização de pastas da entrada, um resultado que se mantém estável a cada nova execução.</p>
+</div>
+</article>
+<article class="card">
+<span class="card__index">03</span>
+<h3 class="card__title">Como foi enriquecida</h3>
+<div class="card__body">
+<p>As perguntas definiram a prioridade, confirmaram que pular um documento já convertido não é erro e fecharam cuidados novos: avisar quando a página de uso fica visível para outras máquinas e recusar, com orientação, pedidos em que documentos diferentes disputariam o mesmo arquivo de saída.</p>
+</div>
+</article>
+<article class="card">
+<span class="card__index">04</span>
+<h3 class="card__title">Como foi implementada</h3>
+<div class="card__body">
+<p>Entregue e conferida contra o combinado: a saída repete a organização de pastas da entrada, os avisos novos estão em uso e cada comportamento do comando tem a sua verificação automática.</p>
+</div>
+</article>
+</div>
+<div class="metrics metrics--3">
+<div class="metric"><span class="metric__value">30<span class="metric__of">/30</span></span><span class="metric__label">Tarefas entregues</span></div>
+<div class="metric"><span class="metric__value">7</span><span class="metric__label">Dúvidas esclarecidas</span></div>
+<div class="metric"><span class="metric__value">convergida</span><span class="metric__label">Revisão final</span></div>
+</div>
+<div class="tags"><span class="tags__label">Por tr&aacute;s</span><span class="tag">Linha de comando</span></div>
+</div>
+<footer class="slide__footer"><span class="slide__footer-label">Fonte</span><span class="src" title="docs/specs/command-line-interface/spec.md; docs/specs/command-line-interface/research.md">Converter pastas inteiras com um comando</span></footer>
+</div>
+</section>
+<section class="slide slide--spec stage-implemented" id="slide-7" data-index="7" data-type="spec" data-title="Vários conversores, um só compromisso" data-key="conversion-engines" data-stage="implemented">
+<div class="slide__frame">
+<header class="slide__header">
+<p class="eyebrow">Do retrato à entrega</p>
+<span class="badge badge--implemented">Implementada</span>
+<h2 class="slide__title">Vários conversores, um só compromisso</h2>
+</header>
+<div class="slide__body">
+<div class="lead">
+<p>Cada conversor tem um talento, e todos trabalham sob a mesma regra: o documento não sai da máquina.</p>
+</div>
+<div class="cards cards--4">
+<article class="card">
+<span class="card__index">01</span>
+<h3 class="card__title">O que é</h3>
+<div class="card__body">
+<p>O produto reúne conversores com talentos diferentes: um principal para páginas em colunas, tabelas e páginas digitalizadas, um leve para texto corrido e opcionais para rapidez e para fórmulas. Ele sabe quais estão instalados e mostra a ficha de cada um.</p>
+</div>
+</article>
+<article class="card">
+<span class="card__index">02</span>
+<h3 class="card__title">Como foi pensada</h3>
+<div class="card__body">
+<p>A garantia de privacidade estava declarada para apenas um dos conversores. A decisão foi estendê-la a todos: recursos remotos desligados de forma explícita e coleta de dados de uso desativada sempre que o conversor oferece essa opção.</p>
+</div>
+</article>
+<article class="card">
+<span class="card__index">03</span>
+<h3 class="card__title">Como foi enriquecida</h3>
+<div class="card__body">
+<p>As perguntas transformaram a privacidade em exigência para todos os conversores e mantiveram a política de aceitar, do conversor opcional de fórmulas, apenas a geração que trabalha localmente. Baixar os modelos na primeira conversão continua permitido: isso traz dados para a máquina, não envia o documento. Uma verificação em execução real mostrou, porém, que o conversor principal consultava a central de modelos mesmo com tudo já baixado, e evitar esse contato virou requisito.</p>
+</div>
+</article>
+<article class="card">
+<span class="card__index">04</span>
+<h3 class="card__title">Como foi implementada</h3>
+<div class="card__body">
+<p>Entregue e conferida contra o combinado: os recursos remotos do conversor principal ficam desligados de forma declarada, a coleta de dados de uso é desativada e, com os modelos já baixados, a conversão acontece sem nenhum contato com a central de modelos. A rede só é usada na primeira conversão, para baixá-los. Cada conversor tem a sua verificação automática.</p>
+</div>
+</article>
+</div>
+<div class="metrics metrics--3">
+<div class="metric"><span class="metric__value">28<span class="metric__of">/28</span></span><span class="metric__label">Tarefas entregues</span></div>
+<div class="metric"><span class="metric__value">7</span><span class="metric__label">Dúvidas esclarecidas</span></div>
+<div class="metric"><span class="metric__value">convergida</span><span class="metric__label">Revisão final</span></div>
+</div>
+<div class="tags"><span class="tags__label">Por tr&aacute;s</span><span class="tag">Docling</span><span class="tag">MarkItDown</span><span class="tag">MinerU</span></div>
+</div>
+<footer class="slide__footer"><span class="slide__footer-label">Fonte</span><span class="src" title="docs/specs/conversion-engines/spec.md; docs/specs/conversion-engines/research.md">Vários conversores, um só compromisso</span></footer>
+</div>
+</section>
+<section class="slide slide--spec stage-implemented" id="slide-8" data-index="8" data-type="spec" data-title="O conversor certo para cada documento" data-key="engine-routing" data-stage="implemented">
+<div class="slide__frame">
+<header class="slide__header">
+<p class="eyebrow">Do retrato à entrega</p>
+<span class="badge badge--implemented">Implementada</span>
+<h2 class="slide__title">O conversor certo para cada documento</h2>
+</header>
+<div class="slide__body">
+<div class="lead">
+<p>O produto escolhe o melhor caminho para cada PDF e não se contenta com um resultado ruim.</p>
+</div>
+<div class="cards cards--4">
+<article class="card">
+<span class="card__index">01</span>
+<h3 class="card__title">O que é</h3>
+<div class="card__body">
+<p>Depois de examinar o documento, o produto monta a ordem de conversores a tentar, dá uma nota de qualidade ao resultado e, se a nota não basta ou algo falha, tenta o próximo. Fica o melhor resultado.</p>
+</div>
+</article>
+<article class="card">
+<span class="card__index">02</span>
+<h3 class="card__title">Como foi pensada</h3>
+<div class="card__body">
+<p>A nota cai quando o documento cita tabelas e nenhuma aparece no resultado, quando o texto sai curto demais ou quando boa parte do conteúdo original se perde. É a resposta direta ao problema que deu origem ao projeto.</p>
+</div>
+</article>
+<article class="card">
+<span class="card__index">03</span>
+<h3 class="card__title">Como foi enriquecida</h3>
+<div class="card__body">
+<p>As perguntas ratificaram os critérios da nota como a definição de conversão aceitável e fixaram o que acontece quando alguém pede um conversor que não está instalado: o produto explica como instalar, sem trocar a escolha da pessoa. Uma verificação prática mostrou que essa orientação só aparecia para um dos conversores, e a lacuna foi fechada. Ficou decidido também não impor limite de tempo além do que já existe.</p>
+</div>
+</article>
+<article class="card">
+<span class="card__index">04</span>
+<h3 class="card__title">Como foi implementada</h3>
+<div class="card__body">
+<p>Entregue e conferida contra o combinado: quem pede um conversor ausente recebe, em português, a orientação de instalação de qualquer conversor, e cada regra de escolha e de nota tem a sua verificação automática.</p>
+</div>
+</article>
+</div>
+<div class="metrics metrics--3">
+<div class="metric"><span class="metric__value">23<span class="metric__of">/23</span></span><span class="metric__label">Tarefas entregues</span></div>
+<div class="metric"><span class="metric__value">5</span><span class="metric__label">Dúvidas esclarecidas</span></div>
+<div class="metric"><span class="metric__value">convergida</span><span class="metric__label">Revisão final</span></div>
+</div>
+</div>
+<footer class="slide__footer"><span class="slide__footer-label">Fonte</span><span class="src" title="docs/specs/engine-routing/spec.md; docs/specs/engine-routing/research.md">O conversor certo para cada documento</span></footer>
+</div>
+</section>
+<section class="slide slide--spec stage-implemented" id="slide-9" data-index="9" data-type="spec" data-title="Entender o documento antes de converter" data-key="pdf-inspection" data-stage="implemented">
+<div class="slide__frame">
+<header class="slide__header">
+<p class="eyebrow">Do retrato à entrega</p>
+<span class="badge badge--implemented">Implementada</span>
+<h2 class="slide__title">Entender o documento antes de converter</h2>
+</header>
+<div class="slide__body">
+<div class="lead">
+<p>Antes de qualquer conversão, o produto lê o documento e descobre do que ele precisa.</p>
+</div>
+<div class="cards cards--4">
+<article class="card">
+<span class="card__index">01</span>
+<h3 class="card__title">O que é</h3>
+<div class="card__body">
+<p>Um exame rápido que identifica páginas com texto, páginas digitalizadas que exigem reconhecimento de caracteres, citações de tabelas e sinais de fórmulas. Esse retrato orienta a escolha do conversor.</p>
+</div>
+</article>
+<article class="card">
+<span class="card__index">02</span>
+<h3 class="card__title">Como foi pensada</h3>
+<div class="card__body">
+<p>Arquivos danificados ou protegidos por senha produziam um aviso técnico em inglês. A decisão foi interromper cedo, com uma mensagem clara em português, antes de acionar conversores pesados. O comportamento foi observado em execução real antes da escolha.</p>
+</div>
+</article>
+<article class="card">
+<span class="card__index">03</span>
+<h3 class="card__title">Como foi enriquecida</h3>
+<div class="card__body">
+<p>As perguntas transformaram lacunas em garantias: a falha clara para arquivo inválido ou protegido e a exigência de que o exame aconteça sem acesso à rede. Também registraram que não há meta de tempo para o exame e que decidir por palavras do texto é um risco aceito, já que um resultado fraco aciona nova tentativa.</p>
+</div>
+</article>
+<article class="card">
+<span class="card__index">04</span>
+<h3 class="card__title">Como foi implementada</h3>
+<div class="card__body">
+<p>Entregue e conferida contra o combinado: arquivos danificados ou protegidos por senha recebem uma mensagem clara em português antes de qualquer conversor ser acionado, e cada comportamento do exame tem a sua verificação automática.</p>
+</div>
+</article>
+</div>
+<div class="metrics metrics--3">
+<div class="metric"><span class="metric__value">24<span class="metric__of">/24</span></span><span class="metric__label">Tarefas entregues</span></div>
+<div class="metric"><span class="metric__value">6</span><span class="metric__label">Dúvidas esclarecidas</span></div>
+<div class="metric"><span class="metric__value">convergida</span><span class="metric__label">Revisão final</span></div>
+</div>
+</div>
+<footer class="slide__footer"><span class="slide__footer-label">Fonte</span><span class="src" title="docs/specs/pdf-inspection/spec.md; docs/specs/pdf-inspection/research.md">Entender o documento antes de converter</span></footer>
+</div>
+</section>
+<section class="slide slide--spec stage-implemented" id="slide-10" data-index="10" data-type="spec" data-title="Arrastar, acompanhar e baixar" data-key="web-interface" data-stage="implemented">
+<div class="slide__frame">
+<header class="slide__header">
+<p class="eyebrow">Do retrato à entrega</p>
+<span class="badge badge--implemented">Implementada</span>
+<h2 class="slide__title">Arrastar, acompanhar e baixar</h2>
+</header>
+<div class="slide__body">
+<div class="lead">
+<p>Converter documentos fica tão simples quanto usar uma página no navegador, sem que nada saia do computador.</p>
+</div>
+<div class="cards cards--4">
+<article class="card">
+<span class="card__index">01</span>
+<h3 class="card__title">O que é</h3>
+<div class="card__body">
+<p>Uma página local onde a pessoa envia um ou mais PDFs, acompanha a fila de conversão, lê o resultado e baixa um arquivo ou todos de uma vez. O que não interessa mais pode ser apagado.</p>
+</div>
+</article>
+<article class="card">
+<span class="card__index">02</span>
+<h3 class="card__title">Como foi pensada</h3>
+<div class="card__body">
+<p>As conversões acontecem uma por vez, porque os conversores são pesados, e o conversor fica num processo à parte que se encerra quando está ocioso, devolvendo a memória ao computador. Cada pedido guarda o documento original, o andamento e o resultado, e um pedido interrompido por reinício fica sinalizado em vez de sumir.</p>
+</div>
+</article>
+<article class="card">
+<span class="card__index">03</span>
+<h3 class="card__title">Como foi enriquecida</h3>
+<div class="card__body">
+<p>As perguntas fecharam decisões de uso: a página não pede senha e atende só o próprio computador por padrão, não há limite de envio nem de fila e os arquivos ficam guardados até a pessoa apagar.</p>
+</div>
+</article>
+<article class="card">
+<span class="card__index">04</span>
+<h3 class="card__title">Como foi implementada</h3>
+<div class="card__body">
+<p>Conferida contra o combinado: os casos de erro ganharam verificação automática, inclusive a queda inesperada do conversor, e um teste confirma que a página e o serviço local usam os mesmos nomes para cada informação.</p>
+</div>
+</article>
+</div>
+<div class="metrics metrics--3">
+<div class="metric"><span class="metric__value">20<span class="metric__of">/20</span></span><span class="metric__label">Tarefas entregues</span></div>
+<div class="metric"><span class="metric__value">6</span><span class="metric__label">Dúvidas esclarecidas</span></div>
+<div class="metric"><span class="metric__value">convergida</span><span class="metric__label">Revisão final</span></div>
+</div>
+</div>
+<footer class="slide__footer"><span class="slide__footer-label">Fonte</span><span class="src" title="docs/specs/web-interface/spec.md; docs/specs/web-interface/research.md; docs/specs/web-interface/data-model.md">Arrastar, acompanhar e baixar</span></footer>
+</div>
+</section>
+<section class="slide slide--timeline" id="slide-11" data-index="11" data-type="timeline" data-title="A jornada">
+<div class="slide__frame">
+<header class="slide__header">
+<p class="eyebrow">Linha do tempo</p>
+<h2 class="slide__title">A jornada</h2>
+</header>
+<div class="slide__body">
+<div class="lead">
+<p>O produto veio primeiro. A documentação de cada peça chegou depois e, logo em seguida, as melhorias planejadas foram entregues e conferidas, peça por peça.</p>
+</div>
+<ol class="timeline">
+<li class="timeline__group"><span class="timeline__date">Em andamento</span><ul class="timeline__specs"><li class="stage-implemented">Converter pastas inteiras com um comando</li><li class="stage-implemented">Vários conversores, um só compromisso</li><li class="stage-implemented">O conversor certo para cada documento</li><li class="stage-implemented">Entender o documento antes de converter</li><li class="stage-implemented">Arrastar, acompanhar e baixar</li></ul></li>
+</ol>
+</div>
+</div>
+</section>
+<section class="slide slide--numbers" id="slide-12" data-index="12" data-type="numbers" data-title="O projeto em números">
+<div class="slide__frame">
+<header class="slide__header">
+<p class="eyebrow">Em n&uacute;meros</p>
+<h2 class="slide__title">O projeto em números</h2>
+</header>
+<div class="slide__body">
+<div class="metrics metrics--4">
+<div class="metric"><span class="metric__value">5</span><span class="metric__label">Capacidades documentadas</span></div>
+<div class="metric"><span class="metric__value">125<span class="metric__of">/125</span></span><span class="metric__label">Tarefas entregues</span></div>
+<div class="metric"><span class="metric__value">31</span><span class="metric__label">Dúvidas esclarecidas</span></div>
+<div class="metric"><span class="metric__value">5</span><span class="metric__label">Princípios</span></div>
+</div>
+</div>
+</div>
+</section>
+<section class="slide slide--closing" id="slide-13" data-index="13" data-type="closing" data-title="O que vem a seguir">
+<div class="slide__frame">
+<header class="slide__header">
+<p class="eyebrow">Horizonte</p>
+<h2 class="slide__title">O que vem a seguir</h2>
+</header>
+<div class="slide__body">
+<div class="lead">
+<p>O horizonte é crescer em capacidades: novos formatos, novos conversores e mais recursos de qualidade. A base para isso está pronta: o que foi planejado está entregue e conferido, e, com os modelos já baixados, o conversor principal trabalha sem contatar a central de modelos.</p>
+<blockquote class="pull"><p>Qualidade e robustez em primeiro lugar.</p></blockquote>
+</div>
+</div>
+<footer class="slide__footer"><span class="slide__footer-label">Fontes</span><span class="src" title="docs/briefing.md">Briefing</span><span class="src__sep">&middot;</span><span class="src" title="docs/specs/conversion-engines/spec.md">Vários conversores, um só compromisso</span></footer>
+</div>
+</section>
+<section class="slide slide--sources" id="slide-14" data-index="14" data-type="sources" data-title="Fontes">
+<div class="slide__frame">
+<header class="slide__header">
+<p class="eyebrow">Fontes</p>
+<h2 class="slide__title">Fontes</h2>
+</header>
+<div class="slide__body">
+<div class="source-index">
+<section><h3>Funda&ccedil;&atilde;o</h3><ul><li><code>docs/briefing.md</code><span>Briefing</span></li><li><code>docs/constitution.md</code><span>Constitui&ccedil;&atilde;o</span></li></ul></section>
+<section><h3>Specs</h3><ul><li><code>docs/specs/command-line-interface/spec.md</code><span>Converter pastas inteiras com um comando</span></li><li><code>docs/specs/conversion-engines/spec.md</code><span>Vários conversores, um só compromisso</span></li><li><code>docs/specs/engine-routing/spec.md</code><span>O conversor certo para cada documento</span></li><li><code>docs/specs/pdf-inspection/spec.md</code><span>Entender o documento antes de converter</span></li><li><code>docs/specs/web-interface/spec.md</code><span>Arrastar, acompanhar e baixar</span></li></ul></section>
+</div>
+</div>
+</div>
+</section>
+</main>
+<footer class="colophon">
+<p><strong>artigo2md</strong> &middot; artigo2md &middot; 2026-11-21</p>
+</footer>
+<div class="hud" role="toolbar" aria-label="artigo2md">
+<span class="hud__counter" aria-live="polite"><span class="hud__current">1</span> / <span class="hud__total">1</span></span>
+<button type="button" class="hud__btn" data-action="prev" aria-label="&larr;">&larr;</button>
+<button type="button" class="hud__btn" data-action="next" aria-label="&rarr;">&rarr;</button>
+<button type="button" class="hud__btn hud__btn--text" data-action="mode" data-label-slides="Slides" data-label-report="Relat&oacute;rio">Relat&oacute;rio</button>
+<button type="button" class="hud__btn hud__btn--text" data-action="theme">Tema</button>
+<button type="button" class="hud__btn hud__btn--text" data-action="print">Imprimir</button>
+<span class="hud__help">&larr; &rarr; navegar &middot; R relat&oacute;rio &middot; T tema &middot; F tela cheia &middot; P imprimir</span>
+</div>
+<script>
+/* cstk presentation: comportamento do deck (template fixo da skill).
+   Sem dependencias, sem rede. Sem JS o documento continua legivel no modo
+   relatorio. Teclas: setas/espaco navegam, R alterna relatorio/slides,
+   T alterna tema, F tela cheia, P imprime. */
+(function () {
+  'use strict';
+
+  var root = document.documentElement;
+  var deck = document.getElementById('deck');
+  if (!deck) { return; }
+
+  var slides = Array.prototype.slice.call(deck.querySelectorAll('.slide'));
+  var total = slides.length;
+  var current = 0;
+  var mode = 'report';
+  var CANVAS_W = 1600;
+  var CANVAS_H = 900;
+  var STORE_KEY = 'cstk-presentation:' + (document.title || 'deck');
+
+  var counterCurrent = document.querySelector('.hud__current');
+  var counterTotal = document.querySelector('.hud__total');
+  var modeButton = document.querySelector('[data-action="mode"]');
+  var tocList = document.querySelector('.toc__list');
+  var tocLinks = [];
+
+  root.classList.add('js');
+
+  function readStore(key) {
+    try { return window.localStorage.getItem(STORE_KEY + ':' + key); } catch (e) { return null; }
+  }
+
+  function writeStore(key, value) {
+    try { window.localStorage.setItem(STORE_KEY + ':' + key, value); } catch (e) { /* sem storage */ }
+  }
+
+  function clamp(i) { return Math.max(0, Math.min(total - 1, i)); }
+
+  function fit() {
+    var scale = Math.min(window.innerWidth / CANVAS_W, window.innerHeight / CANVAS_H);
+    root.style.setProperty('--scale', String(scale));
+  }
+
+  function setProgress(fraction) {
+    root.style.setProperty('--progress', (Math.max(0, Math.min(1, fraction)) * 100).toFixed(2) + '%');
+  }
+
+  function indexFromHash() {
+    var m = /^#slide-(\d+)$/.exec(window.location.hash || '');
+    if (!m) { return null; }
+    var n = parseInt(m[1], 10) - 1;
+    return (n >= 0 && n < total) ? n : null;
+  }
+
+  function markActive(i) {
+    for (var k = 0; k < tocLinks.length; k++) {
+      tocLinks[k].parentNode.classList.toggle('is-active', k === i);
+    }
+    if (counterCurrent) { counterCurrent.textContent = String(i + 1); }
+  }
+
+  function show(i, updateHash) {
+    if (!total) { return; }
+    i = clamp(i);
+    slides[current].classList.remove('is-current');
+    current = i;
+    slides[current].classList.add('is-current');
+    if (mode === 'slides') {
+      for (var k = 0; k < total; k++) {
+        slides[k].setAttribute('aria-hidden', k === current ? 'false' : 'true');
+      }
+      setProgress(total > 1 ? current / (total - 1) : 1);
+    }
+    markActive(current);
+    if (updateHash !== false && window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', '#slide-' + (current + 1));
+    }
+  }
+
+  function setMode(next, persist) {
+    mode = next === 'slides' ? 'slides' : 'report';
+    root.classList.toggle('is-slides', mode === 'slides');
+    root.classList.toggle('is-report', mode === 'report');
+    if (modeButton) {
+      modeButton.textContent = mode === 'slides'
+        ? modeButton.getAttribute('data-label-report')
+        : modeButton.getAttribute('data-label-slides');
+    }
+    if (mode === 'slides') {
+      fit();
+      if (!fitted) { fitSlides(); } else { fitMetricValues(); }
+      show(current, false);
+    } else {
+      for (var k = 0; k < total; k++) { slides[k].removeAttribute('aria-hidden'); }
+      fitMetricValues();
+      slides[current].scrollIntoView({ block: 'start' });
+      onScroll();
+    }
+    if (persist) { writeStore('mode', mode); }
+  }
+
+  /* Reduz a tipografia de cada slide (--fit) ate o conteudo caber no
+     canvas 1600x900. Mede no layout de slides; o valor fica inline e vale
+     tambem para a impressao. */
+  var fitted = false;
+  /* Encolhe so os valores de metrica do slide de numeros que nao cabem na
+     largura do proprio card (passos de 8%, piso de 40% do tamanho do CSS).
+     Numeros curtos mantem o tamanho original. Mede no layout corrente. */
+  function fitMetricValues() {
+    var values = deck.querySelectorAll('.slide--numbers .metric__value');
+    for (var i = 0; i < values.length; i++) {
+      var v = values[i];
+      v.style.fontSize = '';
+      var base = parseFloat(window.getComputedStyle(v).fontSize) || 0;
+      var size = base;
+      while (v.scrollWidth > v.clientWidth + 1 && size > base * 0.4) {
+        size = size * 0.92;
+        v.style.fontSize = size.toFixed(2) + 'px';
+      }
+    }
+  }
+
+  function fitSlides() {
+    var wasSlides = root.classList.contains('is-slides');
+    if (!wasSlides) { root.classList.add('is-slides'); }
+    fitMetricValues();
+    for (var i = 0; i < total; i++) {
+      var s = slides[i];
+      var body = s.querySelector('.slide__body');
+      if (!body) { continue; }
+      var fit = 1;
+      s.style.setProperty('--fit', '1');
+      while (body.scrollHeight > body.clientHeight + 1 && fit > 0.62) {
+        fit = Math.round((fit - 0.04) * 100) / 100;
+        s.style.setProperty('--fit', String(fit));
+      }
+    }
+    if (!wasSlides) { root.classList.remove('is-slides'); }
+    fitted = true;
+  }
+
+  function effectiveTheme() {
+    var forced = root.getAttribute('data-theme');
+    if (forced) { return forced; }
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  function toggleTheme() {
+    var next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    writeStore('theme', next);
+  }
+
+  function toggleFullscreen() {
+    var el = document.documentElement;
+    if (document.fullscreenElement) {
+      if (document.exitFullscreen) { document.exitFullscreen(); }
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () { /* recusado pelo navegador */ });
+    }
+  }
+
+  function buildToc() {
+    if (!tocList) { return; }
+    for (var i = 0; i < total; i++) {
+      var s = slides[i];
+      var type = s.getAttribute('data-type') || '';
+      var li = document.createElement('li');
+      var a = document.createElement('a');
+      a.href = '#' + s.id;
+      a.textContent = s.getAttribute('data-title') || ('#' + (i + 1));
+      if (type === 'cover' || type === 'chapter' || type === 'sources') { li.className = 'is-major'; }
+      if (type === 'spec') { li.className = 'is-spec'; }
+      li.appendChild(a);
+      tocList.appendChild(li);
+      tocLinks.push(a);
+    }
+  }
+
+  function onScroll() {
+    if (mode !== 'report') { return; }
+    var doc = document.documentElement;
+    var max = doc.scrollHeight - window.innerHeight;
+    setProgress(max > 0 ? window.scrollY / max : 1);
+    var line = window.innerHeight * 0.3;
+    var found = 0;
+    for (var i = 0; i < total; i++) {
+      if (slides[i].getBoundingClientRect().top <= line) { found = i; } else { break; }
+    }
+    if (found !== current) {
+      slides[current].classList.remove('is-current');
+      current = found;
+      slides[current].classList.add('is-current');
+      markActive(current);
+    }
+  }
+
+  function onKey(e) {
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) { return; }
+    var tag = (e.target && e.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') { return; }
+    var key = e.key;
+    if (key === 'r' || key === 'R') { setMode(mode === 'slides' ? 'report' : 'slides', true); e.preventDefault(); return; }
+    if (key === 't' || key === 'T') { toggleTheme(); e.preventDefault(); return; }
+    if (key === 'p' || key === 'P') { window.print(); e.preventDefault(); return; }
+    if (key === 'f' || key === 'F') { toggleFullscreen(); e.preventDefault(); return; }
+    if (mode !== 'slides') { return; }
+    if (key === 'ArrowRight' || key === 'PageDown' || key === ' ' || key === 'Enter' || key === 'ArrowDown') {
+      show(current + 1); e.preventDefault();
+    } else if (key === 'ArrowLeft' || key === 'PageUp' || key === 'Backspace' || key === 'ArrowUp') {
+      show(current - 1); e.preventDefault();
+    } else if (key === 'Home') {
+      show(0); e.preventDefault();
+    } else if (key === 'End') {
+      show(total - 1); e.preventDefault();
+    }
+  }
+
+  var touchX = null;
+  function onTouchStart(e) { if (mode === 'slides' && e.touches.length === 1) { touchX = e.touches[0].clientX; } }
+  function onTouchEnd(e) {
+    if (touchX === null || mode !== 'slides') { return; }
+    var dx = e.changedTouches[0].clientX - touchX;
+    touchX = null;
+    if (Math.abs(dx) > 50) { show(current + (dx < 0 ? 1 : -1)); }
+  }
+
+  function onHud(e) {
+    var btn = e.target.closest ? e.target.closest('[data-action]') : null;
+    if (!btn) { return; }
+    var action = btn.getAttribute('data-action');
+    if (action === 'prev') { show(current - 1); }
+    else if (action === 'next') { show(current + 1); }
+    else if (action === 'mode') { setMode(mode === 'slides' ? 'report' : 'slides', true); }
+    else if (action === 'theme') { toggleTheme(); }
+    else if (action === 'print') { window.print(); }
+  }
+
+  /* ---- inicializacao ---- */
+
+  var storedTheme = readStore('theme');
+  if (storedTheme === 'dark' || storedTheme === 'light') { root.setAttribute('data-theme', storedTheme); }
+
+  if (counterTotal) { counterTotal.textContent = String(total); }
+  buildToc();
+
+  var params = /[?&]mode=(slides|report)\b/.exec(window.location.search || '');
+  var initial = params ? params[1] : readStore('mode');
+  if (initial !== 'slides' && initial !== 'report') {
+    initial = window.innerWidth >= 900 && window.innerHeight >= 500 ? 'slides' : 'report';
+  }
+
+  var fromHash = indexFromHash();
+  current = fromHash === null ? 0 : fromHash;
+  if (total) { slides[current].classList.add('is-current'); }
+  setMode(initial, false);
+
+  window.addEventListener('resize', function () {
+    if (mode === 'slides') { fit(); } else { fitMetricValues(); }
+  });
+  /* a impressao usa o canvas dos slides: reajusta nele e volta depois */
+  window.addEventListener('beforeprint', function () {
+    if (mode === 'slides') { return; }
+    root.classList.add('is-slides');
+    if (!fitted) { fitSlides(); } else { fitMetricValues(); }
+    root.classList.remove('is-slides');
+  });
+  window.addEventListener('afterprint', function () { if (mode === 'report') { fitMetricValues(); } });
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('hashchange', function () {
+    var i = indexFromHash();
+    if (i !== null && mode === 'slides') { show(i, false); }
+  });
+  document.addEventListener('keydown', onKey);
+  document.addEventListener('touchstart', onTouchStart, { passive: true });
+  document.addEventListener('touchend', onTouchEnd, { passive: true });
+  var hud = document.querySelector('.hud');
+  if (hud) { hud.addEventListener('click', onHud); }
+  if (tocList) {
+    tocList.addEventListener('click', function (e) {
+      var a = e.target.closest ? e.target.closest('a') : null;
+      if (!a) { return; }
+      var i = slides.indexOf(document.getElementById(a.getAttribute('href').slice(1)));
+      if (i >= 0 && mode === 'slides') { e.preventDefault(); show(i); }
+    });
+  }
+}());
+</script>
+</body>
+</html>

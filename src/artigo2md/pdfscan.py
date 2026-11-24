@@ -20,6 +20,31 @@ FORMULA_TERMS = re.compile(r"[∑Σ∫√≤≥≈∂∇]|\b(equation|equação)
 
 MIN_NATIVE_CHARS = 80  # abaixo disso a página é tratada como escaneada
 
+# Códigos de erro do PDFium (FPDF_ERR_*) que recebem mensagem própria.
+PDFIUM_ERR_FORMAT = 3
+PDFIUM_ERR_PASSWORD = 4
+
+
+class InvalidPdfError(ValueError):
+    """O arquivo não pôde ser aberto como PDF: inválido, protegido por senha ou ilegível."""
+
+
+def _open_pdf(path: str | Path) -> pdfium.PdfDocument:
+    """Abre o PDF e troca o erro do PDFium (em inglês) por uma mensagem clara em português."""
+    try:
+        return pdfium.PdfDocument(str(path))
+    except pdfium.PdfiumError as exc:
+        name = Path(path).name
+        # Versões do pypdfium2 sem `err_code` (ou com outro código) caem na mensagem genérica.
+        code = getattr(exc, "err_code", None)
+        if code == PDFIUM_ERR_PASSWORD:
+            message = f"{name} está protegido por senha. Remova a senha do PDF e tente de novo."
+        elif code == PDFIUM_ERR_FORMAT:
+            message = f"{name} não é um PDF válido."
+        else:
+            message = f"Não foi possível abrir {name} como PDF ({exc})."
+        raise InvalidPdfError(message) from exc
+
 
 @dataclass
 class PageInfo:
@@ -57,7 +82,7 @@ class Analysis:
 
 
 def analyze(path: str | Path) -> Analysis:
-    pdf = pdfium.PdfDocument(str(path))
+    pdf = _open_pdf(path)
     result = Analysis(pages=len(pdf))
     try:
         for index in range(len(pdf)):

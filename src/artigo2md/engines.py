@@ -21,6 +21,11 @@ import threading
 from dataclasses import dataclass, field
 from pathlib import Path
 
+# Nada sai da máquina: desliga a telemetria do Hugging Face Hub, que o Docling usa para
+# baixar modelos. O hub lê a variável ao ser importado, por isso ela é definida aqui,
+# antes de qualquer import do Docling.
+os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
+
 
 @dataclass
 class EngineOutput:
@@ -34,9 +39,44 @@ class EngineUnavailable(RuntimeError):
     pass
 
 
+def install_hint(engine_id: str) -> str:
+    """Comando que instala o motor: o da ficha, para os opcionais; `uv sync`, para os incluídos."""
+    for info in ENGINE_INFO:
+        if info["id"] == engine_id:
+            return info["install"] or "uv sync"
+    raise ValueError(f"Motor desconhecido: {engine_id}")
+
+
 # ── Docling ──────────────────────────────────────────────────────────────────
 _docling_lock = threading.Lock()
 _docling_cache: dict[tuple[bool, bool], object] = {}
+
+
+def _docling_pipeline_options(ocr: bool, cpu: bool = False):
+    """Opções do pipeline de PDF: tabelas no modo preciso, OCR sob demanda, nada remoto.
+
+    Com `cpu`, os modelos rodam no processador em vez da placa de vídeo.
+    """
+    from docling.datamodel.pipeline_options import PdfPipelineOptions, TableFormerMode
+
+    opts = PdfPipelineOptions()
+    opts.do_table_structure = True
+    opts.table_structure_options.mode = TableFormerMode.ACCURATE
+    opts.table_structure_options.do_cell_matching = True
+    opts.do_ocr = ocr
+    if ocr:
+        opts.ocr_options = _ocr_options()
+    if cpu:
+        try:
+            from docling.datamodel.accelerator_options import AcceleratorDevice, AcceleratorOptions
+        except ImportError:  # versões antigas do Docling
+            from docling.datamodel.pipeline_options import AcceleratorDevice, AcceleratorOptions
+        opts.accelerator_options = AcceleratorOptions(device=AcceleratorDevice.CPU)
+    # Serviços remotos desligados de forma explícita, sem depender do padrão do Docling.
+    # Versões antigas do Docling não têm o campo.
+    if hasattr(opts, "enable_remote_services"):
+        opts.enable_remote_services = False
+    return opts
 
 
 def is_gpu_oom(exc_or_text) -> bool:
@@ -69,27 +109,12 @@ def _docling_converter(ocr: bool, cpu: bool = False):
         if key in _docling_cache:
             return _docling_cache[key]
         from docling.datamodel.base_models import InputFormat
-        from docling.datamodel.pipeline_options import (
-            PdfPipelineOptions,
-            TableFormerMode,
-        )
         from docling.document_converter import DocumentConverter, PdfFormatOption
 
-        opts = PdfPipelineOptions()
-        opts.do_table_structure = True
-        opts.table_structure_options.mode = TableFormerMode.ACCURATE
-        opts.table_structure_options.do_cell_matching = True
-        opts.do_ocr = ocr
-        if ocr:
-            opts.ocr_options = _ocr_options()
-        if cpu:
-            try:
-                from docling.datamodel.accelerator_options import AcceleratorDevice, AcceleratorOptions
-            except ImportError:  # versões antigas do Docling
-                from docling.datamodel.pipeline_options import AcceleratorDevice, AcceleratorOptions
-            opts.accelerator_options = AcceleratorOptions(device=AcceleratorDevice.CPU)
         converter = DocumentConverter(
-            format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=opts)}
+            format_options={
+                InputFormat.PDF: PdfFormatOption(pipeline_options=_docling_pipeline_options(ocr, cpu))
+            }
         )
         _docling_cache[key] = converter
         return converter
@@ -106,6 +131,69 @@ def _ocr_options():
     return po.EasyOcrOptions(lang=["pt", "en"])
 
 
+def _set_hub_offline(offline: bool) -> None:
+    """Liga ou desliga o modo offline do hub de modelos só neste processo.
+
+    Mexe no valor em memória, e não na variável de ambiente, para não valer também para o
+    MinerU, que roda como processo externo e baixa os próprios modelos.
+    """
+    import huggingface_hub.constants as hub_constants
+
+    hub_constants.HF_HUB_OFFLINE = offline
+
+
+def _is_missing_model(exc: BaseException) -> bool:
+    """O erro, ou algum erro que o causou, é o do hub para modelo ausente do cache?"""
+    from huggingface_hub.errors import LocalEntryNotFoundError
+
+    seen: set[int] = set()
+    current: BaseException | None = exc
+    while current is not None and id(current) not in seen:
+        if isinstance(current, LocalEntryNotFoundError):
+            return True
+        seen.add(id(current))
+        current = current.__cause__ or current.__context__
+    return False
+
+
+def _convert_with_docling(converter, path: Path):
+    """Converte sem contatar o hub de modelos quando eles já estão em cache.
+
+    Mesmo com tudo em cache, o hub é consultado a cada primeira conversão do processo. Por
+    isso a conversão começa com o hub em modo offline; só quando falta modelo (primeira
+    conversão da máquina) ela é repetida com a rede liberada, para baixar.
+
+    Falha de página não vira exceção (`raises_on_error=False`): quem chama confere o
+    estado do resultado. A falta de modelo acontece ao montar o pipeline e continua
+    chegando aqui como exceção.
+    """
+    user_wants_offline = any(
+        os.environ.get(name, "").strip().lower() in ("1", "true", "yes", "on")
+        for name in ("HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE")
+    )
+    _set_hub_offline(True)
+    try:
+        return converter.convert(str(path), raises_on_error=False)
+    except Exception as exc:
+        if not _is_missing_model(exc):
+            raise
+        if user_wants_offline:
+            raise EngineUnavailable(
+                "Os modelos do Docling ainda não foram baixados e o modo offline do hub "
+                "(HF_HUB_OFFLINE) está ativo. Desative-o para a primeira conversão."
+            ) from exc
+    _set_hub_offline(False)
+    try:
+        return converter.convert(str(path), raises_on_error=False)
+    except Exception as exc:
+        if not _is_missing_model(exc):
+            raise
+        raise EngineUnavailable(
+            "Não foi possível baixar os modelos do Docling. Verifique a conexão com a "
+            "internet: ela só é necessária na primeira conversão."
+        ) from exc
+
+
 def _docling_ok(result) -> bool:
     status = getattr(result.status, "value", str(result.status))
     return str(status).lower() == "success"
@@ -114,7 +202,13 @@ def _docling_ok(result) -> bool:
 def run_docling(path: Path, ocr: bool = False) -> EngineOutput:
     cpu = False
     try:
-        result = _docling_converter(ocr).convert(str(path), raises_on_error=False)
+        converter = _docling_converter(ocr)
+    except ImportError as exc:
+        raise EngineUnavailable(
+            f"Docling não está instalado. Rode: {install_hint('docling')}"
+        ) from exc
+    try:
+        result = _convert_with_docling(converter, path)
         # O Docling engole a falta de memória da GPU página a página e devolve um
         # resultado parcial (sem tabelas, com texto faltando). Parcial → refaz na CPU.
         retry = not _docling_ok(result)
@@ -124,7 +218,7 @@ def run_docling(path: Path, ocr: bool = False) -> EngineOutput:
         result, retry = None, True
     if retry:
         release_gpu_memory()
-        cpu_result = _docling_converter(ocr, cpu=True).convert(str(path), raises_on_error=False)
+        cpu_result = _convert_with_docling(_docling_converter(ocr, cpu=True), path)
         # Se os dois saírem parciais (PDF com páginas defeituosas), fica o de mais texto.
         if (result is None or _docling_ok(cpu_result)
                 or len(cpu_result.document.export_to_markdown())
@@ -141,7 +235,12 @@ def run_docling(path: Path, ocr: bool = False) -> EngineOutput:
 
 # ── MarkItDown ───────────────────────────────────────────────────────────────
 def run_markitdown(path: Path) -> EngineOutput:
-    from markitdown import MarkItDown
+    try:
+        from markitdown import MarkItDown
+    except ImportError as exc:
+        raise EngineUnavailable(
+            f"MarkItDown não está instalado. Rode: {install_hint('markitdown')}"
+        ) from exc
 
     text = MarkItDown(enable_plugins=False).convert(str(path)).text_content
     return EngineOutput(engine="markitdown", markdown=text or "")
@@ -165,7 +264,7 @@ def run_pymupdf(path: Path) -> EngineOutput:
         import pymupdf4llm
     except ImportError as exc:
         raise EngineUnavailable(
-            "pymupdf4llm não está instalado (opcional). Rode: uv sync --extra pymupdf"
+            f"pymupdf4llm não está instalado (opcional). Rode: {install_hint('pymupdf')}"
         ) from exc
     return EngineOutput(engine="pymupdf", markdown=pymupdf4llm.to_markdown(str(path)))
 
@@ -213,7 +312,9 @@ def mineru_available() -> bool:
 def run_mineru(path: Path, timeout: int = 1800) -> EngineOutput:
     ok, detail = mineru_status()
     if not ok:
-        raise EngineUnavailable(f"MinerU indisponível ({detail}). Veja o README.")
+        # O detalhe de versão incompatível já traz o comando; nos outros casos, vem da ficha.
+        hint = "" if "instale" in detail else f" Instale com: {install_hint('mineru')}."
+        raise EngineUnavailable(f"MinerU indisponível ({detail}).{hint} Veja o README.")
     release_gpu_memory()  # o MinerU roda em outro processo e precisa da placa livre
     env = dict(os.environ, MINERU_TELEMETRY_DISABLED="1")  # nada sai da máquina
 
